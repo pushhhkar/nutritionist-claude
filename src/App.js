@@ -24,7 +24,7 @@ function App() {
   const [dietPlan, setDietPlan] = useState([]);
 
   function handleSearch(){
-    const API_KEY = "f88e58e5e067429f82cd11fe4ec883a8";
+    const API_KEY = process.env.REACT_APP_SPOONACULAR_KEY;
 
     if (!foodName.trim()) {
       alert("Please enter a food name!");
@@ -112,7 +112,7 @@ function App() {
   }
 
   function fetchIndianDietPlan(status) {
-  const API_KEY = "f88e58e5e067429f82cd11fe4ec883a8";  
+  const API_KEY = process.env.REACT_APP_SPOONACULAR_KEY; 
 
   let extraFilters = "";
   if (status === "Underweight") {
