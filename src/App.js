@@ -23,6 +23,16 @@ function App() {
   const [bmiResult, setBMIResult] = useState("")
   const [dietPlan, setDietPlan] = useState([]);
 
+
+  const [showCalorieModal, setShowCalorieModal] = useState(false);
+  const [mealName, setMealName] = useState("");
+  const [mealQuantity, setMealQuantity] = useState("");
+  const [dailyMeals, setDailyMeals] = useState([]);
+
+
+  const API_KEY = process.env.REACT_APP_SPOONACULAR_KEY;
+
+
   function handleSearch(){
     const API_KEY = process.env.REACT_APP_SPOONACULAR_KEY;
 
@@ -174,13 +184,61 @@ function App() {
     fetchIndianDietPlan(status);
   }
 
+  function addMealToList() {
+  if (!mealName || !mealQuantity) {
+    alert("Please enter meal name & quantity!");
+    return;
+  }
+
+  const API_KEY = process.env.REACT_APP_SPOONACULAR_KEY;
+
+  fetch(`https://api.spoonacular.com/food/ingredients/search?query=${mealName}&number=1&apiKey=${API_KEY}`)
+    .then(res => res.json())
+    .then(data => {
+      if (!data.results || data.results.length === 0) {
+        alert(`No nutrition data found for "${mealName}"`);
+        return;
+      }
+
+      const ingredientId = data.results[0].id;
+
+      return fetch(
+        `https://api.spoonacular.com/food/ingredients/${ingredientId}/information?amount=${mealQuantity}&unit=gram&apiKey=${API_KEY}`
+      );
+    })
+    .then(res => res.json())
+    .then(info => {
+      if (!info || !info.nutrition || !info.nutrition.nutrients) {
+        alert(`No calorie info for "${mealName}"`);
+        return;
+      }
+
+      const calories = info.nutrition.nutrients.find(n => n.name === "Calories")?.amount || 0;
+
+      const newMeal = { name: `${mealName} (${mealQuantity}g)`, calories: Math.round(calories) };
+      setDailyMeals(prev => [...prev, newMeal]);
+
+      setMealName("");
+      setMealQuantity("");
+    })
+    .catch(err => {
+      console.error("API Error:", err);
+      alert("Failed to fetch calorie info. Try again later.");
+    });
+}
+
 
 
   return (
    <div className="App">
       <nav className="navbar">
         <div className="nav-left">
-          <span className="nav-item">📊 Calorie Count of the Day</span>
+          <span 
+          className="nav-item"
+            onClick={() => setShowCalorieModal(true)}
+          >
+            📊 Calorie Count of the Day
+          </span>
           <span 
           className="nav-item"
             onClick={() => {
@@ -193,6 +251,7 @@ function App() {
           >
             🥗 Personalized Diet Plan
             </span>
+
         </div>
         <div className="nav-right">
            <button className="sign-btn" onClick={() => setSignIn(true)}>Sign In</button>
@@ -302,6 +361,41 @@ function App() {
           </div>
         </div>
       )}
+
+      {showCalorieModal && (
+  <div className="signinform">
+    <div className="modal">
+      <span className="close-icon" onClick={() => setShowCalorieModal(false)}>✖</span>
+      <h2>📊 Calorie Count of the Day</h2>
+
+      <input 
+        type="text" 
+        placeholder="Enter meal (e.g. Rice)" 
+        value={mealName} 
+        onChange={(e) => setMealName(e.target.value)} 
+      />
+      <input 
+        type="number" 
+        placeholder="Quantity (grams)" 
+        value={mealQuantity} 
+        onChange={(e) => setMealQuantity(e.target.value)} 
+      />
+      <button onClick={addMealToList}>Add Meal</button>
+
+      {dailyMeals.length > 0 && (
+        <>
+          <h3 style={{ marginTop: "10px" }}>Today's Meals</h3>
+          <ul>
+            {dailyMeals.map((m, idx) => (
+              <li key={idx}>{m.name} - {m.calories} kcal</li>
+            ))}
+          </ul>
+          <strong>Total Calories: {dailyMeals.reduce((sum, m) => sum + m.calories, 0)} kcal</strong>
+        </>
+      )}
+    </div>
+  </div>
+)}
     </div>
   );
 }
