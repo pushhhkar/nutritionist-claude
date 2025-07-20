@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import './App.css';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "./firebase";
 function App() {
   const [foodName, setFoodName] = useState("")
   const [nutrition, setNutrition] = useState("");
@@ -80,46 +82,54 @@ function App() {
     });
 }
 
-
-  function validateSignIn(){
-    const emailpattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailpattern.test(email)) {
-      alert(" Please enter a valid email like example@domain.com");
-      return;
-    }
-
-    if (password.trim().length < 6) {
-      alert(" Password must be at least 6 characters long");
-      return;
-    }
-    setIsAuthenticated(true);
-    setSignIn(false);
-    alert(" Signed in successfully!");
+async function validateSignUp() {
+  if (signUpName.trim().length < 2) {
+    alert(" Please enter your full name");
+    return;
   }
 
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailPattern.test(signUpEmail)) {
+    alert(" Please enter a valid email like example@domain.com");
+    return;
+  }
 
-   function validateSignUp() {
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (signUpPassword.trim().length < 6) {
+    alert(" Password must be at least 6 characters long");
+    return;
+  }
 
-    if (signUpName.trim().length < 2) {
-      alert(" Please enter your full name");
-      return;
-    }
-
-    if (!emailPattern.test(signUpEmail)) {
-      alert(" Please enter a valid email like example@domain.com");
-      return;
-    }
-
-    if (signUpPassword.trim().length < 6) {
-      alert(" Password must be at least 6 characters long");
-      return;
-    }
-
+  try {
+    await createUserWithEmailAndPassword(auth, signUpEmail, signUpPassword);
     alert("✅ Registered successfully! You can now sign in.");
     setSignUp(false);
-    setSignIn(true); 
+    setSignIn(true);
+  } catch (error) {
+    alert(` Sign Up Failed: ${error.message}`);
   }
+}
+
+async function validateSignIn() {
+  const emailpattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailpattern.test(email)) {
+    alert(" Please enter a valid email like example@domain.com");
+    return;
+  }
+
+  if (password.trim().length < 6) {
+    alert(" Password must be at least 6 characters long");
+    return;
+  }
+
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
+    setIsAuthenticated(true);
+    setSignIn(false);
+    alert("✅ Signed in successfully!");
+  } catch (error) {
+    alert(` Sign In Failed: ${error.message}`);
+  }
+}
 
   function fetchIndianDietPlan(status) {
   const API_KEY = process.env.REACT_APP_SPOONACULAR_KEY; 
@@ -362,7 +372,7 @@ function App() {
         </div>
       )}
 
-      {showCalorieModal && (
+{showCalorieModal && (
   <div className="signinform">
     <div className="modal">
       <span className="close-icon" onClick={() => setShowCalorieModal(false)}>✖</span>
@@ -380,7 +390,16 @@ function App() {
         value={mealQuantity} 
         onChange={(e) => setMealQuantity(e.target.value)} 
       />
-      <button onClick={addMealToList}>Add Meal</button>
+
+      <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
+        <button onClick={addMealToList}>Add Meal</button>
+        <button 
+          style={{ backgroundColor: "red", color: "white" }}
+          onClick={() => setDailyMeals([])}
+        >
+          Reset
+        </button>
+      </div>
 
       {dailyMeals.length > 0 && (
         <>
@@ -390,7 +409,9 @@ function App() {
               <li key={idx}>{m.name} - {m.calories} kcal</li>
             ))}
           </ul>
-          <strong>Total Calories: {dailyMeals.reduce((sum, m) => sum + m.calories, 0)} kcal</strong>
+          <strong>
+            Total Calories: {dailyMeals.reduce((sum, m) => sum + m.calories, 0)} kcal
+          </strong>
         </>
       )}
     </div>
