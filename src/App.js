@@ -245,7 +245,13 @@ async function validateSignIn() {
         <div className="nav-left">
           <span 
           className="nav-item"
-            onClick={() => setShowCalorieModal(true)}
+            onClick={() => {
+              if(!isAuthenticated){
+                setSignIn(true);
+              }else{
+                setShowCalorieModal(true); 
+              }
+            }}
           >
             📊 Calorie Count of the Day
           </span>
