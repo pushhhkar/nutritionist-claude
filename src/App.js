@@ -32,6 +32,18 @@ function App() {
   const [dailyMeals, setDailyMeals] = useState([]);
 
 
+React.useEffect(() => {
+  const savedMeals = localStorage.getItem("dailyMeals");
+  if (savedMeals) {
+    setDailyMeals(JSON.parse(savedMeals));
+  }
+}, []);
+
+React.useEffect(() => {
+  localStorage.setItem("dailyMeals", JSON.stringify(dailyMeals));
+}, [dailyMeals]);
+
+
   const API_KEY = process.env.REACT_APP_SPOONACULAR_KEY;
 
 
@@ -401,7 +413,9 @@ async function validateSignIn() {
         <button onClick={addMealToList}>Add Meal</button>
         <button 
           style={{ backgroundColor: "red", color: "white" }}
-          onClick={() => setDailyMeals([])}
+          onClick={() => {setDailyMeals([]);
+             localStorage.removeItem("dailyMeals");
+          }}
         >
           Reset
         </button>
