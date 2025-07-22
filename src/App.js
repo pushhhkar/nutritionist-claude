@@ -4,6 +4,7 @@ import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "fire
 import { auth } from "./firebase";
 
 function App() {
+  const [postLoginAction, setPostLoginAction] = useState(null);
   const [foodName, setFoodName] = useState("")
   const [nutrition, setNutrition] = useState("");
   const [signIn, setSignIn] = useState(false);
@@ -30,6 +31,9 @@ function App() {
   const [dailyMeals, setDailyMeals] = useState([]);
 
   const [loggedInUser, setLoggedInUser] = useState("");
+
+  const [welcomeMessage, setWelcomeMessage] = useState("");
+  const [fadeOut, setFadeOut] = useState(false);
 
   const API_KEY = process.env.REACT_APP_SPOONACULAR_KEY;
 
@@ -127,13 +131,36 @@ React.useEffect(() => {
     }
 
     try {
-      await createUserWithEmailAndPassword(auth, signUpEmail, signUpPassword);
-      alert("✅ Registered successfully! You can now sign in.");
-      setSignUp(false);
-      setSignIn(true);
-    } catch (error) {
-      alert(` Sign Up Failed: ${error.message}`);
-    }
+        await createUserWithEmailAndPassword(auth, signUpEmail, signUpPassword);
+
+        setIsAuthenticated(true);
+        setSignUp(false);
+
+        localStorage.setItem("currentUser", signUpEmail);
+        setLoggedInUser(signUpEmail.split("@")[0]);
+
+        
+        loadMealsForUser(signUpEmail);
+
+        alert(`🎉 Welcome, ${signUpName}! You’re now registered & logged in.`);
+        setWelcomeMessage(`Welcome, ${signUpName}! Glad to have you here 🎉`)
+        setFadeOut(false);
+
+        setTimeout(() => setFadeOut(true), 4000);
+        setTimeout(() => setWelcomeMessage(""), 5000);
+
+
+        
+        if (postLoginAction === "calorie") {
+          setShowCalorieModal(true);
+        } else if (postLoginAction === "bmi") {
+          setShowBMIForm(true);
+        }
+        setPostLoginAction(null);
+
+      } catch (error) {
+        alert(` Sign Up Failed: ${error.message}`);
+      }
   }
 
   async function validateSignIn() {
@@ -162,6 +189,15 @@ React.useEffect(() => {
       loadMealsForUser(email);
 
       alert("✅ Signed in successfully!");
+      setWelcomeMessage(`Welcome back, ${email.split("@")[0]}!`);
+      setTimeout(() => setFadeOut(true), 4000); 
+      setTimeout(() => setWelcomeMessage(""), 5000);
+      if (postLoginAction === "calorie") {
+          setShowCalorieModal(true);
+        } else if (postLoginAction === "bmi") {
+          setShowBMIForm(true);
+        }
+        setPostLoginAction(null);
     } catch (error) {
       alert(` Sign In Failed: ${error.message}`);
     }
@@ -267,24 +303,35 @@ React.useEffect(() => {
       {/* Navbar */}
       <nav className="navbar">
         <div className="nav-left">
-          <span className="nav-item" onClick={() => {
-  if (!isAuthenticated) {
-    
-    alert("Please sign in first to use Calorie Tracker!");
-    setSignIn(true);
-  } else {
-    
-    setShowCalorieModal(true);
-  }
-}}>
-  📊 Calorie Count of the Day
-</span>
-          <span className="nav-item" onClick={() => {
-            if (!isAuthenticated) setSignIn(true);
-            else setShowBMIForm(true);
-          }}>
+          <span
+            className="nav-item"
+            onClick={() => {
+              if (!isAuthenticated) {
+                alert("Please sign in first to use Calorie Tracker!");
+                setPostLoginAction("calorie"); 
+                setSignIn(true);
+              } else {
+                setShowCalorieModal(true);
+              }
+            }}
+          >
+            📊 Calorie Count of the Day
+          </span>
+          <span
+            className="nav-item"
+            onClick={() => {
+              if (!isAuthenticated) {
+                alert("Please sign in first to get your Personalized Diet Plan!");
+                setPostLoginAction("bmi");
+                setSignIn(true);
+              } else {
+                setShowBMIForm(true);
+              }
+            }}
+          >
             🥗 Personalized Diet Plan
           </span>
+
         </div>
         <div className="nav-right">
         {!isAuthenticated ? (
@@ -311,6 +358,12 @@ React.useEffect(() => {
         )}
       </div>
       </nav>
+
+      {welcomeMessage && (
+        <div className={`welcome-banner ${fadeOut ? "fade-out" : ""}`}>
+          {welcomeMessage}
+        </div>
+      )}
 
       {/* Hero */}
       <section className="hero">
