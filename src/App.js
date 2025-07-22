@@ -29,15 +29,30 @@ function App() {
   const [mealQuantity, setMealQuantity] = useState("");
   const [dailyMeals, setDailyMeals] = useState([]);
 
+  const [loggedInUser, setLoggedInUser] = useState("");
+
   const API_KEY = process.env.REACT_APP_SPOONACULAR_KEY;
 
-  
-  React.useEffect(() => {
+
+
+React.useEffect(() => {
+  if (isAuthenticated) {
     const currentUser = localStorage.getItem("currentUser");
     if (currentUser) {
       localStorage.setItem(`dailyMeals_${currentUser}`, JSON.stringify(dailyMeals));
     }
-  }, [dailyMeals]);
+  }
+}, [dailyMeals, isAuthenticated]);
+  
+  React.useEffect(() => {
+  const currentUser = localStorage.getItem("currentUser");
+  if (currentUser) {
+    setIsAuthenticated(true);
+    setLoggedInUser(currentUser.split("@")[0]);
+    loadMealsForUser(currentUser);  
+  }
+}, []);
+  
 
   
   function loadMealsForUser(userEmail) {
@@ -141,6 +156,8 @@ function App() {
       
       localStorage.setItem("currentUser", email);
 
+      setLoggedInUser(email.split("@")[0]);
+
      
       loadMealsForUser(email);
 
@@ -149,6 +166,14 @@ function App() {
       alert(` Sign In Failed: ${error.message}`);
     }
   }
+
+  function handleLogout() {
+  localStorage.removeItem("currentUser");
+  setIsAuthenticated(false);
+  setLoggedInUser("");
+  setDailyMeals([]); 
+  alert("You have been logged out.");
+}
 
   function fetchIndianDietPlan(status) {
     let extraFilters = "";
@@ -243,11 +268,17 @@ function App() {
       <nav className="navbar">
         <div className="nav-left">
           <span className="nav-item" onClick={() => {
-            if (!isAuthenticated) setSignIn(true);
-            else setShowCalorieModal(true);
-          }}>
-            📊 Calorie Count of the Day
-          </span>
+  if (!isAuthenticated) {
+    
+    alert("Please sign in first to use Calorie Tracker!");
+    setSignIn(true);
+  } else {
+    
+    setShowCalorieModal(true);
+  }
+}}>
+  📊 Calorie Count of the Day
+</span>
           <span className="nav-item" onClick={() => {
             if (!isAuthenticated) setSignIn(true);
             else setShowBMIForm(true);
@@ -256,8 +287,29 @@ function App() {
           </span>
         </div>
         <div className="nav-right">
+        {!isAuthenticated ? (
           <button className="sign-btn" onClick={() => setSignIn(true)}>Sign In</button>
-        </div>
+        ) : (
+          <>
+            <span className="nav-user">👤 {loggedInUser}</span>
+            <button
+              className="logout-btn"
+              style={{
+                marginLeft: "10px",
+                backgroundColor: "red",
+                color: "white",
+                padding: "5px 10px",
+                borderRadius: "5px",
+                border: "none",
+                cursor: "pointer",
+              }}
+              onClick={handleLogout}
+            >
+              Logout
+            </button>
+          </>
+        )}
+      </div>
       </nav>
 
       {/* Hero */}
