@@ -29,12 +29,12 @@ A smart AI-powered nutrition assistant that helps you:
 🌐 Vercel Hosting – Deployment
 
 ## 📌 Features
-✔ User Authentication – Sign up & sign in securely
-✔ Calorie Tracker – Add meals & calculate total calories
-✔ Nutrition Lookup – Search for any food & get nutrition facts
-✔ BMI Calculator – Get your BMI & health category
-✔ Personalized Indian Diet Plans – Auto-generated meal plans based on BMI
-✔ Persistent Storage – Saves your daily meals per user
+1. ✔ User Authentication – Sign up & sign in securely
+2. ✔ Calorie Tracker – Add meals & calculate total calories
+3. ✔ Nutrition Lookup – Search for any food & get nutrition facts
+4. ✔ BMI Calculator – Get your BMI & health category
+5. ✔ Personalized Indian Diet Plans – Auto-generated meal plans based on BMI
+6. ✔ Persistent Storage – Saves your daily meals per user
 
 
 THANK YOU FOR VISITING!
