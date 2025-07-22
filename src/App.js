@@ -372,7 +372,7 @@ React.useEffect(() => {
         <h2 className="hero-tagline">Eat Smart. Live Better.</h2>
 
         <div className="search-box">
-          <input type="text" placeholder="Enter food name..." value={foodName} onChange={(e) => setFoodName(e.target.value)} />
+          <input type="text" placeholder="Enter food item name..." value={foodName} onChange={(e) => setFoodName(e.target.value)} />
           <button onClick={handleSearch}>Get Nutrition</button>
         </div>
         {nutrition && <pre>{nutrition}</pre>}
