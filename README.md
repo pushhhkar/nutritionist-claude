@@ -2,11 +2,11 @@
 
 A smart AI-powered nutrition assistant that helps you:
 
-✅ Track daily calories with ease
-✅ Get instant nutrition details for any food
-✅ Calculate your BMI and fitness status
-✅ Receive personalized Indian diet plans
-✅ Save your daily meals & track progress
+1. ✅ Track daily calories with ease
+2. ✅ Get instant nutrition details for any food
+3. ✅ Calculate your BMI and fitness status
+4. ✅ Receive personalized Indian diet plans
+5. ✅ Save your daily meals & track progress
 
 ## 🔗 Live Site  
 👉 [https://nutritionist-claude.vercel.app/](https://nutritionist-claude.vercel.app/)  
