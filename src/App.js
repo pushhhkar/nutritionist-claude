@@ -3,6 +3,7 @@ import './App.css';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "./firebase";
 
+
 function App() {
   const [postLoginAction, setPostLoginAction] = useState(null);
   const [foodName, setFoodName] = useState("")
